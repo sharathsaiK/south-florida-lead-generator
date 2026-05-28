@@ -2,28 +2,44 @@
 
 > Built for **Co-web Consulting** — a web development consultancy that identifies local service businesses with no web presence and delivers custom websites to grow their customer acquisition.
 
-A Python automation tool that uses the Google Places API to surface high-rated local businesses across South Florida that have no website — the ideal targets for web development outreach.
+A Python sales intelligence tool that uses the Google Places API to find high-rated local businesses across South Florida with no website, then generates a full outreach package for each lead — pitch, objection handling, best call time, review signals, social links, interactive heatmap, and a CSV call sheet.
 
 ---
 
-## What It Does
+## Features
 
-Scans **15 cities × 23 business categories = 345 targeted queries** across Miami-Dade, Broward, and Palm Beach counties. For each business it finds, it filters by:
+### Lead Discovery
+- Scans **15 cities × 23 business categories** across Miami-Dade, Broward, and Palm Beach counties
+- Filters to businesses that are **operational**, **rated ≥ 3.5★**, have **≥ 10 reviews**, and **have no website listed on Google**
+- Ranks results by review volume — highest social proof with no web presence = best lead
 
-- ✅ No website listed
-- ✅ Rating ≥ 3.5 stars
-- ✅ Review count ≥ 10
-- ✅ Business status: Operational
+### Pitch Intelligence (per lead)
+- **Objection prediction** — categorizes each business into one of 5 objection profiles based on review count and category:
+  - *Word of mouth comfort* (150+ reviews)
+  - *Using social media instead* (salons, tattoo shops)
+  - *Too busy / no time* (restaurants, cafes)
+  - *Doesn't see the ROI* (trades: plumbers, HVAC, roofers)
+  - *Tech-averse / not sure how it works* (default)
+- **Custom pitch** — tailored one-liner to counter each objection
+- **Best call time** — category-aware timing (e.g. "Call 8–10 AM for tradespeople", "Avoid lunch rush for restaurants")
 
-Results are ranked by review volume — the businesses with the most reviews and no website are the highest-value leads (proven demand, missing online presence).
+### Review Signal Detection
+- Scans up to 5 Google reviews per business for keywords suggesting no online presence (`"no website"`, `"hard to find online"`, `"not online"`, `"google them"`, etc.)
+- Flags businesses where customers have complained about their missing web presence — the warmest leads
 
----
+### Outputs
+| Output | Description |
+|---|---|
+| **Terminal** | Top 10 leads with full pitch package and social links |
+| **leads.csv** | Complete call sheet — open in Excel or Google Sheets to track calls and follow-ups |
+| **leads_map.html** | Interactive Folium heatmap — click any marker for the full lead card |
 
-## Coverage
-
-**Cities (15):** Miami, Hialeah, Miami Beach, Coral Gables, Homestead, Fort Lauderdale, Hollywood, Pembroke Pines, Pompano Beach, Coral Springs, Miramar, Boca Raton, Delray Beach, West Palm Beach, Boynton Beach
-
-**Business Categories (23):** Plumber, Electrician, Roofer, Landscaper, Auto Repair, Hair Salon, Barber Shop, Nail Salon, Tattoo Shop, Restaurant, Bakery, Coffee Shop, Dentist, Chiropractor, Veterinarian, Tow Truck, Moving Company, Junk Removal, Pool Cleaning, HVAC, Pest Control, House Cleaning
+### Heatmap
+Interactive map built with [Folium](https://python-visualization.github.io/folium/) showing lead density across South Florida. Each marker shows:
+- Business name, rating, phone, address
+- Business hours + best call time
+- Objection type + pitch angle
+- Review flag if a customer mentioned no online presence
 
 ---
 
@@ -31,19 +47,29 @@ Results are ranked by review volume — the businesses with the most reviews and
 
 ```
 ================================================================================
-FOUND 60+ LEADS (no website, >=3.5★, >=10 reviews)
+TOP 10 LEADS  (no website · >=3.5★ · >=10 reviews)
 ================================================================================
 
-1. Miami Plumbing Experts  [plumber]
-   4.8★  (312 reviews)
-   (305) 555-0192
-   1234 SW 8th St, Miami, FL 33135
+1. Yamashiro Miami  [restaurant]
+   Rating   : 4.8  |  Reviews: 1575
+   Phone    : (786) 412-2791
+   Address  : 159 NE 6th St fl 9, Miami, FL 33132, USA
+   About    : A top-rated restaurant with 1575+ customer reviews.
+   Hours    : Tuesday: 5:00 – 11:00 PM
+   Best time: Call 2–4 PM (avoid lunch rush 11:30 AM–1:30 PM)
+   Objection: Word of mouth comfort
+   Pitch    : "A site makes referrals faster — instead of describing your shop, people just send your link."
+   Review   : None found
+   Maps     : https://www.google.com/maps/place/?q=place_id:...
+   Instagram: https://google.com/search?q="Yamashiro+Miami"+Miami+instagram
+   Facebook : https://google.com/search?q="Yamashiro+Miami"+Miami+facebook
 
-2. South Beach Auto Repair  [auto repair shop]
-   4.6★  (278 reviews)
-   (305) 555-0147
-   567 Alton Rd, Miami Beach, FL 33139
-...
+================================================================================
+HOT ZONES  (out of 30 total leads)
+================================================================================
+  Miami                     ████████████ 12
+  Hialeah                   ████████ 8
+  Miami Beach               █████ 5
 ```
 
 ---
@@ -53,25 +79,27 @@ FOUND 60+ LEADS (no website, >=3.5★, >=10 reviews)
 ```bash
 git clone https://github.com/sharathsaiK/south-florida-lead-generator.git
 cd south-florida-lead-generator
-pip install requests
-
+pip install requests folium
 export GOOGLE_PLACES_API_KEY="your_key_here"
 python find_leads.py
 ```
 
-You'll need a [Google Places API key](https://console.cloud.google.com/) with the **Places API (New)** enabled.
+You'll need a [Google Places API key](https://console.cloud.google.com/) with **Places API (New)** enabled. The field mask in the request keeps billing minimal — only the fields actually used are charged.
 
 ---
 
 ## Stack
 
-- **Language:** Python
-- **API:** Google Places API (New) — `places:searchText` endpoint
-- **Auth:** `X-Goog-Api-Key` header with field mask to minimize billing
-- **Output:** Ranked console output sorted by review count
+| Layer | Tech |
+|---|---|
+| Language | Python |
+| Maps | Folium + Leaflet.js |
+| Data | Google Places API (New) — `places:searchText` |
+| Export | Python `csv` module → Excel/Sheets compatible |
+| Social | Google search URL generation for Instagram/Facebook |
 
 ---
 
 ## Part of Co-web Consulting
 
-This tool powers the client acquisition pipeline for [Co-web Consulting](https://github.com/sharathsaiK). Once leads are identified, we reach out and build custom, mobile-responsive websites for local service businesses across South Florida.
+This tool powers the client acquisition pipeline for Co-web Consulting. Once leads are identified and ranked, we call during the optimal window, lead with the category-matched pitch, and deliver custom mobile-responsive websites for local service businesses across South Florida.
